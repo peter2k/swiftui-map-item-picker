@@ -17,15 +17,8 @@ class MapItemPickerViewController:
     UISheetPresentationControllerDelegate,
     UIAdaptivePresentationControllerDelegate,
     MKMapViewDelegate,
-    UISearchBarDelegate,
-    CLLocationManagerDelegate
+    UISearchBarDelegate
 {
-    
-    lazy private var locationManager: CLLocationManager = {
-        let locationManger = CLLocationManager()
-        locationManger.delegate = self
-        return locationManger
-    }()
     
     lazy var searchNavigationController: UINavigationController = {
         let searchNavigationController = UINavigationController(rootViewController: searchResponseTableViewController)
@@ -181,20 +174,9 @@ class MapItemPickerViewController:
         return searchController
     }()
     
-    private var foregroundRestorationObserver: NSObjectProtocol?
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemGroupedBackground
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        let name = UIApplication.willEnterForegroundNotification
-        foregroundRestorationObserver = NotificationCenter.default.addObserver(forName: name, object: nil, queue: nil, using: { [unowned self] (_) in
-            self.locationManager.requestWhenInUseAuthorization()
-        })
-        locationManager.requestWhenInUseAuthorization()
     }
     
     private lazy var mapView: MKMapView = {
@@ -279,19 +261,6 @@ class MapItemPickerViewController:
     func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
         if initalUserLocation == nil {
             initalUserLocation = userLocation
-        }
-    }
-    
-    // MARK: CLLocationManagerDelegate
-    
-    func locationManager(_ manager: CLLocationManager,  didUpdateLocations locations: [CLLocation]) {
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        if let error = error as? CLError, error.code == .denied {
-            // Location updates are not authorized.
-            manager.stopUpdatingLocation()
-            return
         }
     }
 }
